@@ -27,7 +27,7 @@ Supported OS: ubuntu 22.04
 ```
       ./init.sh
 ```
-  - If you want to find out the root password for the GitLab server user 'root', wait for the gitlab server to be up at (default: https://gitlab.com) and run:
+  - If you want to find out the root password for the GitLab server user 'root', wait for the gitlab server to be up at (default: https://gitlab.local) and run:
 ```
       cd gitlab-server && ./root_pass_show.sh ; cd -
 ```
