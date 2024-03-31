@@ -16,7 +16,7 @@
    Alpine      45 MB        130 MB      gitlab/gitlab-runner:alpine
    RH8          ?             ?         gitlab/gitlab-runner:ubi-fips
 
-== Install 
+== Install
 
   1. In gitlab create token in CI repo:
 
@@ -51,7 +51,7 @@
 
      docker login gitlab.local:5005
      user: text from Token name
-     pass: copied token glpat-r8TgqYqfzN5YsUqU8a2n
+     pass: copied token
 
      # If connection OK you must see text (but it is not guaranty for perms): Login Succeeded
 
@@ -60,7 +60,7 @@
      # ./up.sh
      ||
      # docker-compose up -d
-     # docker-compose logs gitlab-runner 
+     # docker-compose logs gitlab-runner
      # docker-compose exec gitlab-runner bash
      :/# <-- put to container console command from https://gitlab.local/admin/runners
      Ctrl+d
