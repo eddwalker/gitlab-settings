@@ -1,0 +1,29 @@
+---
+version: '3'
+
+services:
+  apt-cacher-ng:
+    image: sameersbn/apt-cacher-ng
+    container_name: apt-cacher-ng
+    ports:
+      - "3142:3142"
+    volumes:
+      - apt-cacher-ng:/var/cache/apt-cacher-ng:rw
+      - /var/log/apt-cacher-ng:/var/log/apt-cacher-ng:rw
+    restart: always
+  squid:
+    image: ubuntu/squid:5.2-22.04_beta
+    restart: always
+    ports:
+      - "3128:3128"
+    environment:
+      - TZ=UTC
+    volumes:
+      - squid:/var/:rw
+        # - squid-cache:/opt/cache:rw
+      - ./etc-squid-conf.d/:/etc/squid/conf.d/:rw
+
+volumes:
+  apt-cacher-ng:
+  squid:
+  squid-cache:

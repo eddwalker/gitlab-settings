@@ -1,0 +1,114 @@
+version: '2'
+
+services:
+  web:
+    env_file: .env
+    image: 'gitlab/gitlab-ce:16.9.2-ce.0'
+    restart: unless-stopped
+    # https://docs.docker.com/config/containers/resource_constraints/
+    hostname: 'gitlab.local'
+    environment:
+      TESTA:
+      GITLAB_OMNIBUS_CONFIG: |
+        registry['enable'] = true
+        registry_external_url 'https://gitlab.local:5005'
+        #registry_nginx['redirect_http_to_https'] = true
+        #registry_nginx['listen_port'] = 5005
+        registry_nginx['ssl_certificate']     = "/opt/crt/gitlab.local.crt"
+        registry_nginx['ssl_certificate_key'] = "/opt/crt/gitlab.local.key"
+        external_url 'https://gitlab.local'
+        gitlab_rails['time_zone'] = 'UTC'
+        gitlab_rails['gitlab_default_projects_features_builds'] = false
+        gitlab_rails['gitlab_default_projects_features_container_registry'] = false
+        #gitlab_rails['monitoring_whitelist'] = ['10.0.0.0/8', '::1/128']
+        git_data_dirs({
+          "default" => { "path" => "/var/opt/gitlab/git-data" },
+          "DATA"    => { "path" => "/DATA/git-data" },
+          "DATA2"   => { "path" => "/DATA2/git-data" }
+        })
+        gitlab_rails['gitlab_shell_ssh_port'] = 22
+        gitlab_rails['gitlab_shell_git_timeout'] = 800
+        gitlab_rails['smtp_enable'] = false
+        gitlab_rails['smtp_address'] = "127.0.0.1"
+        gitlab_rails['smtp_port'] = 465
+        gitlab_rails['smtp_domain'] = "localhost"
+        gitlab_rails['smtp_enable_starttls_auto'] = true
+        gitlab_rails['smtp_tls'] = true
+        gitlab_rails['smtp_openssl_verify_mode'] = 'none'
+        gitlab_rails['gitlab_email_from'] = 'gitlab@local'
+        gitlab_rails['gitlab_email_reply_to'] = 'noreply@local'
+        gitlab_rails['db_max_allowed_packet'] = "220G"
+        gitlab_rails['max_request_duration_seconds'] = 2000
+        sidekiq['concurrency'] = 2
+        # next new:
+        sidekiq['max_concurrency'] = 2
+        # puma default worker_processes = 8
+        # 0 is alpha! normally use 2
+        puma['worker_processes'] = 0
+        puma['per_worker_max_memory_mb'] = 1024
+        puma['worker_timeout'] = 2600
+        gitlab_rails['env'] = {
+           'GITLAB_RAILS_RACK_TIMEOUT' => 2600,
+           'MALLOC_CONF' => 'dirty_decay_ms:1000,muzzy_decay_ms:1000',
+        }
+        #redis['enable'] = true
+        #postgresql['enable'] = false
+        postgresql['shared_buffers'] = "50MB"
+        nginx['redirect_http_to_https'] = false
+        nginx['redirect_http_to_https'] = true
+        nginx['ssl_certificate']     = "/opt/crt/gitlab.local.crt"
+        nginx['ssl_certificate_key'] = "/opt/crt/gitlab.local.key"
+        nginx['hsts_max_age'] = 3600
+        nginx['hsts_include_subdomains'] = false
+        nginx['gzip_enabled'] = true
+        nginx['keepalive_requests'] = 100000
+        #node_exporter['enable'] = true
+        #node_exporter['listen_address'] = '0.0.0.0:9100'
+        prometheus_monitoring['enable'] = false
+        alertmanager['enable'] = false
+        #grafana['enable'] = false # depricated
+        letsencrypt['enable'] = false
+        #gitaly['daily_maintenance_start_hour'] = 20
+        #gitaly['daily_maintenance_start_minute'] = 0
+        #gitaly['daily_maintenance_duration'] = '7h'
+        #gitaly['daily_maintenance_storages'] = ["default","DATA","DATA2"]
+        #gitaly['daily_maintenance_disabled'] = false
+        gitaly['env'] = {
+          'MALLOC_CONF' => 'dirty_decay_ms:1000,muzzy_decay_ms:1000'
+        }
+        gitaly['configuration'] = {
+            concurrency: [
+              {
+                'rpc' => "/gitaly.SmartHTTPService/PostReceivePack",
+                'max_per_repo' => 3,
+              }, {
+                'rpc' => "/gitaly.SSHService/SSHUploadPack",
+                'max_per_repo' => 3,
+              },
+            ],
+            #cgroups: {
+            #  repositories: {
+            #    count: 2,
+            #  },
+            #  mountpoint: '/sys/fs/cgroup',
+            #  hierarchy_root: 'gitaly',
+            #  memory_bytes: 500000,
+            #  cpu_shares: 512,
+            #},
+          }
+    ports:
+      - '22:22'
+      - '80:80'
+      - '443:443'
+      - '5005:5005'
+    volumes:
+      # Note 'backup-gitlab' must NOT match default backup path /var/opt/gitlab/backups
+      # or gitlab will be failed on start because it can't set special perms on folder
+      #- 'backup-gitlab:/opt/backup:rw'
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+      - '$GITLAB_HOME/DATA:/DATA'
+      - '$GITLAB_HOME/DATA2:/DATA2'
+      - '../crt/:/opt/crt:ro'
+    shm_size: '256m'

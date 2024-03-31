@@ -1,0 +1,10 @@
+version: '3'
+services:
+  squid-deb-proxy:
+    build: .
+    container_name: squid-deb-proxy
+    image: squid-deb-proxy
+    ports:
+      - "3128:8000/tcp"
+    volumes:
+      - /opt/squid:/data/squid
