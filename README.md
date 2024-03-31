@@ -23,7 +23,7 @@ Supported OS: ubuntu 22.04
 ```
       cd crt && ./gen.sh ; cd -
 ```
-  - To install GitLab server, proxy, and build agent, run:
+  - To install GitLab server, proxy, and build agent, **this also change running server SSH Port to 10022** run:
 ```
       ./init.sh
 ```
