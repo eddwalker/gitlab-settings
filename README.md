@@ -5,14 +5,16 @@ Supported OS: ubuntu 22.04
 
 ## Script installs dockerized versions of
 
-  - gitlab-server: serves as GitLab server and GitLab Docker registry
-  - runner-docker: Kaniko Dockerfiles builder
-  - squid-docker:  caching apt/files proxy for runner-docker
+  - **gitlab-server** serves GitLab Server and GitLab Docker registry
+  - **runner-docker** Kaniko Dockerfiles builder
+  - **squid-docker**  caching apt/files proxy for runner-docker
 
 ## How to init
 
   - If your GitLab server name does NOT match gitlab.local, replace gitlab.local with the actual GitLab server name using:
+```
       grep -R gitlab.local .
+```
   - If you wish to use your own certificates, replace crt/gitlab.local.key and crt/gitlab.local.crt
   - If you wish to generate a self-signed certificate for the GitLab server:
       cd crt && ./gen.sh ; cd -
